@@ -6,6 +6,8 @@ const createValidation = zod_1.z.object({
     title: zod_1.z.string({ required_error: 'Title is required' }),
     content: zod_1.z.string({ required_error: 'Content is required' }),
 });
+const updateValidation = createValidation.partial();
 exports.blogValidation = {
     createValidation,
+    updateValidation,
 };

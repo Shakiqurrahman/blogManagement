@@ -25,10 +25,44 @@ const createBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
-        message: 'Login successful',
+        message: 'Blog created successfully',
         data: newBlog,
+    });
+}));
+const updateBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.user;
+    const { id } = req.params;
+    const validatedData = blogValidation_1.blogValidation.updateValidation.parse(req.body);
+    const updatedBlog = yield blogService_1.blogServices.updateBlogInToDB(id, userId, validatedData);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Blog updated successfully',
+        data: updatedBlog,
+    });
+}));
+const deleteBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.user;
+    const { id } = req.params;
+    yield blogService_1.blogServices.deleteBlogFromDB(id, userId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Blog deleted successfully',
+    });
+}));
+const getAllBlogs = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const blogs = yield blogService_1.blogServices.getAllBlogsFromDB();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Blogs fetched successfully',
+        data: blogs,
     });
 }));
 exports.blogControllers = {
     createBlog,
+    updateBlog,
+    deleteBlog,
+    getAllBlogs,
 };
