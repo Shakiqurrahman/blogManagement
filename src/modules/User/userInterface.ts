@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 import { Document } from 'mongoose';
+import { USER_ROLE } from './userConstant';
 
 export type TUser = {
     name: string;
@@ -16,3 +17,5 @@ type TUserMethods = {
 };
 
 export interface IUser extends TUser, TUserMethods, Document {}
+
+export type TUserRole = keyof typeof USER_ROLE;

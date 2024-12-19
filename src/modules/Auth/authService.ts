@@ -2,10 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import httpStatus from 'http-status';
+import { config } from '../../config/config';
 import AppError from '../../errors/AppError';
 import { TUser } from '../User/userInterface';
 import { User } from '../User/userModel';
 import { TLoginPayload, TRegisterPayload } from './authInterface';
+import { createToken } from './authUtils';
 
 const registerUserIntoDB = async (
     payload: TRegisterPayload,
@@ -21,9 +23,7 @@ const registerUserIntoDB = async (
     return data;
 };
 
-const loginUserFromDB = async (
-    payload: TLoginPayload,
-): Promise<Omit<TUser, 'password'>> => {
+const loginUserFromDB = async (payload: TLoginPayload) => {
     const user = await User.findOne({ email: payload.email }).select(
         '+password',
     );
@@ -35,8 +35,24 @@ const loginUserFromDB = async (
     if (user.isBlocked) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'This user is blocked');
     }
-    const { password, ...data } = user.toObject();
-    return data;
+
+    const jwtPayload = {
+        userId: user.id,
+        role: user.role,
+    };
+    const accessToken = createToken(
+        jwtPayload,
+        config.ACCESS_TOKEN_SECRET as string,
+        config.ACCESS_TOKEN_EXPIRY as string,
+    );
+
+    const refreshToken = createToken(
+        jwtPayload,
+        config.REFRESH_TOKEN_SECRET as string,
+        config.REFRESH_TOKEN_EXPIRY as string,
+    );
+
+    return { accessToken, refreshToken };
 };
 
 export const authServices = {
