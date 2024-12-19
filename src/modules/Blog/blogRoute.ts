@@ -15,10 +15,10 @@ router.patch(
     auth(USER_ROLE.user, USER_ROLE.admin),
     blogControllers.updateBlog,
 );
-router.post(
-    '/',
+router.delete(
+    '/:id',
     auth(USER_ROLE.user, USER_ROLE.admin),
-    blogControllers.createBlog,
+    blogControllers.deleteBlog,
 );
 router.get('/', blogControllers.getAllBlogs);
 

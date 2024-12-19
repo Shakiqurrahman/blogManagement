@@ -35,6 +35,24 @@ const updateBlogInToDB = async (
     return updatedBlog;
 };
 
+const deleteBlogFromDB = async (id: string, userId: string) => {
+    const blog = await Blog.findById(id).populate('author').lean();
+    if (!blog) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Blog is not found');
+    }
+
+    // Check if the user is authorized
+    if ((blog.author as IAuthor)._id.toString() !== userId) {
+        throw new AppError(
+            httpStatus.UNAUTHORIZED,
+            'Unauthorized to delete blog',
+        );
+    }
+
+    await Blog.findByIdAndDelete(id);
+    return;
+};
+
 const getAllBlogsFromDB = async () => {
     const blogs = await Blog.find({ isPublished: true }).populate('author');
     return blogs;
@@ -43,5 +61,6 @@ const getAllBlogsFromDB = async () => {
 export const blogServices = {
     createBlogInToDB,
     updateBlogInToDB,
+    deleteBlogFromDB,
     getAllBlogsFromDB,
 };

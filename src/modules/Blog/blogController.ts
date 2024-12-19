@@ -39,6 +39,18 @@ const updateBlog: RequestHandler = catchAsync(async (req, res) => {
     });
 });
 
+const deleteBlog: RequestHandler = catchAsync(async (req, res) => {
+    const { userId } = req.user;
+    const { id } = req.params;
+    await blogServices.deleteBlogFromDB(id, userId);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'Blog deleted successfully',
+    });
+});
+
 const getAllBlogs: RequestHandler = catchAsync(async (req, res) => {
     const blogs = await blogServices.getAllBlogsFromDB();
 
@@ -53,5 +65,6 @@ const getAllBlogs: RequestHandler = catchAsync(async (req, res) => {
 export const blogControllers = {
     createBlog,
     updateBlog,
+    deleteBlog,
     getAllBlogs,
 };
