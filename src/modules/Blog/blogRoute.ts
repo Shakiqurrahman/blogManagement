@@ -10,5 +10,16 @@ router.post(
     auth(USER_ROLE.user, USER_ROLE.admin),
     blogControllers.createBlog,
 );
+router.patch(
+    '/:id',
+    auth(USER_ROLE.user, USER_ROLE.admin),
+    blogControllers.updateBlog,
+);
+router.post(
+    '/',
+    auth(USER_ROLE.user, USER_ROLE.admin),
+    blogControllers.createBlog,
+);
+router.get('/', blogControllers.getAllBlogs);
 
 export const blogRoutes = router;

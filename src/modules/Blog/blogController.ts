@@ -8,7 +8,6 @@ import { blogValidation } from './blogValidation';
 const createBlog: RequestHandler = catchAsync(async (req, res) => {
     const { userId } = req.user;
     const validatedData = blogValidation.createValidation.parse(req.body);
-
     const newBlog = await blogServices.createBlogInToDB({
         ...validatedData,
         author: userId,
@@ -17,11 +16,42 @@ const createBlog: RequestHandler = catchAsync(async (req, res) => {
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
-        message: 'Login successful',
+        message: 'Blog created successfully',
         data: newBlog,
+    });
+});
+
+const updateBlog: RequestHandler = catchAsync(async (req, res) => {
+    const { userId } = req.user;
+    const { id } = req.params;
+    const validatedData = blogValidation.updateValidation.parse(req.body);
+    const updatedBlog = await blogServices.updateBlogInToDB(
+        id,
+        userId,
+        validatedData,
+    );
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'Blog updated successfully',
+        data: updatedBlog,
+    });
+});
+
+const getAllBlogs: RequestHandler = catchAsync(async (req, res) => {
+    const blogs = await blogServices.getAllBlogsFromDB();
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'Blogs fetched successfully',
+        data: blogs,
     });
 });
 
 export const blogControllers = {
     createBlog,
+    updateBlog,
+    getAllBlogs,
 };

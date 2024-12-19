@@ -5,6 +5,9 @@ const createValidation = z.object({
     content: z.string({ required_error: 'Content is required' }),
 });
 
+const updateValidation = createValidation.partial();
+
 export const blogValidation = {
     createValidation,
+    updateValidation,
 };
