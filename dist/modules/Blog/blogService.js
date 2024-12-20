@@ -14,7 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogServices = void 0;
 const http_status_1 = __importDefault(require("http-status"));
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
+const blogConstants_1 = require("./blogConstants");
 const blogModel_1 = require("./blogModel");
 const createBlogInToDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const newBlog = (yield blogModel_1.Blog.create(payload)).populate({
@@ -49,9 +51,13 @@ const deleteBlogFromDB = (id, userId) => __awaiter(void 0, void 0, void 0, funct
     yield blogModel_1.Blog.findByIdAndDelete(id);
     return;
 });
-const getAllBlogsFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const blogs = yield blogModel_1.Blog.find({ isPublished: true }).populate('author');
-    return blogs;
+const getAllBlogsFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const blogsQuery = new QueryBuilder_1.default(blogModel_1.Blog.find().populate('author'), query)
+        .search(blogConstants_1.blogSearchableFields)
+        .filter()
+        .sortBy();
+    const result = yield blogsQuery.modelQuery;
+    return result;
 });
 exports.blogServices = {
     createBlogInToDB,

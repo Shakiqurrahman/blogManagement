@@ -52,7 +52,7 @@ const deleteBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const getAllBlogs = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blogs = yield blogService_1.blogServices.getAllBlogsFromDB();
+    const blogs = yield blogService_1.blogServices.getAllBlogsFromDB(req.query);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
