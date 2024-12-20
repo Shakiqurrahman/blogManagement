@@ -52,7 +52,7 @@ const deleteBlog: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const getAllBlogs: RequestHandler = catchAsync(async (req, res) => {
-    const blogs = await blogServices.getAllBlogsFromDB();
+    const blogs = await blogServices.getAllBlogsFromDB(req.query);
 
     sendResponse(res, {
         success: true,

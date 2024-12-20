@@ -1,5 +1,7 @@
 import httpStatus from 'http-status';
+import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
+import { blogSearchableFields } from './blogConstants';
 import { IAuthor, TBlog } from './blogInterface';
 import { Blog } from './blogModel';
 
@@ -53,9 +55,14 @@ const deleteBlogFromDB = async (id: string, userId: string) => {
     return;
 };
 
-const getAllBlogsFromDB = async () => {
-    const blogs = await Blog.find({ isPublished: true }).populate('author');
-    return blogs;
+const getAllBlogsFromDB = async (query: Record<string, unknown>) => {
+    const blogsQuery = new QueryBuilder(Blog.find().populate('author'), query)
+        .search(blogSearchableFields)
+        .filter()
+        .sortBy();
+
+    const result = await blogsQuery.modelQuery;
+    return result;
 };
 
 export const blogServices = {
