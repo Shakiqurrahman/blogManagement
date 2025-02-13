@@ -19,19 +19,13 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const blogConstants_1 = require("./blogConstants");
 const blogModel_1 = require("./blogModel");
 const createBlogInToDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const newBlog = (yield blogModel_1.Blog.create(payload)).populate({
-        path: 'author',
-    });
+    const newBlog = yield blogModel_1.Blog.create(payload);
     return newBlog;
 });
-const updateBlogInToDB = (id, userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const blog = yield blogModel_1.Blog.findById(id).populate('author').lean();
+const updateBlogInToDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const blog = yield blogModel_1.Blog.findById(id).lean();
     if (!blog) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Blog is not found');
-    }
-    // Check if the user is authorized
-    if (blog.author._id.toString() !== userId) {
-        throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'Unauthorized to update blog');
     }
     const updatedBlog = yield blogModel_1.Blog.findByIdAndUpdate(id, payload, {
         new: true,
@@ -39,29 +33,33 @@ const updateBlogInToDB = (id, userId, payload) => __awaiter(void 0, void 0, void
     });
     return updatedBlog;
 });
-const deleteBlogFromDB = (id, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const blog = yield blogModel_1.Blog.findById(id).populate('author').lean();
+const deleteBlogFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const blog = yield blogModel_1.Blog.findById(id).lean();
     if (!blog) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Blog is not found');
-    }
-    // Check if the user is authorized
-    if (blog.author._id.toString() !== userId) {
-        throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'Unauthorized to delete blog');
     }
     yield blogModel_1.Blog.findByIdAndDelete(id);
     return;
 });
 const getAllBlogsFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const blogsQuery = new QueryBuilder_1.default(blogModel_1.Blog.find().populate('author'), query)
+    const blogsQuery = new QueryBuilder_1.default(blogModel_1.Blog.find(), query)
         .search(blogConstants_1.blogSearchableFields)
         .filter()
         .sortBy();
     const result = yield blogsQuery.modelQuery;
     return result;
 });
+const getBlogByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const blog = yield blogModel_1.Blog.findById(id).lean();
+    if (!blog) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Blog is not found');
+    }
+    return blog;
+});
 exports.blogServices = {
     createBlogInToDB,
     updateBlogInToDB,
     deleteBlogFromDB,
     getAllBlogsFromDB,
+    getBlogByIdFromDB,
 };

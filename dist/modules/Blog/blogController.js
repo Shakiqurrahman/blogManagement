@@ -19,9 +19,8 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const blogService_1 = require("./blogService");
 const blogValidation_1 = require("./blogValidation");
 const createBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.user;
     const validatedData = blogValidation_1.blogValidation.createValidation.parse(req.body);
-    const newBlog = yield blogService_1.blogServices.createBlogInToDB(Object.assign(Object.assign({}, validatedData), { author: userId }));
+    const newBlog = yield blogService_1.blogServices.createBlogInToDB(validatedData);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -30,10 +29,9 @@ const createBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const updateBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.user;
     const { id } = req.params;
     const validatedData = blogValidation_1.blogValidation.updateValidation.parse(req.body);
-    const updatedBlog = yield blogService_1.blogServices.updateBlogInToDB(id, userId, validatedData);
+    const updatedBlog = yield blogService_1.blogServices.updateBlogInToDB(id, validatedData);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -42,9 +40,8 @@ const updateBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const deleteBlog = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.user;
     const { id } = req.params;
-    yield blogService_1.blogServices.deleteBlogFromDB(id, userId);
+    yield blogService_1.blogServices.deleteBlogFromDB(id);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -60,9 +57,20 @@ const getAllBlogs = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
         data: blogs,
     });
 }));
+const getBlogById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const blog = yield blogService_1.blogServices.getBlogByIdFromDB(id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Blog retrived successfully',
+        data: blog,
+    });
+}));
 exports.blogControllers = {
     createBlog,
     updateBlog,
     deleteBlog,
     getAllBlogs,
+    getBlogById,
 };
