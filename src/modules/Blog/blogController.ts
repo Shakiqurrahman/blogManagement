@@ -6,12 +6,8 @@ import { blogServices } from './blogService';
 import { blogValidation } from './blogValidation';
 
 const createBlog: RequestHandler = catchAsync(async (req, res) => {
-    const { userId } = req.user;
     const validatedData = blogValidation.createValidation.parse(req.body);
-    const newBlog = await blogServices.createBlogInToDB({
-        ...validatedData,
-        author: userId,
-    });
+    const newBlog = await blogServices.createBlogInToDB(validatedData);
 
     sendResponse(res, {
         success: true,
@@ -22,14 +18,9 @@ const createBlog: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const updateBlog: RequestHandler = catchAsync(async (req, res) => {
-    const { userId } = req.user;
     const { id } = req.params;
     const validatedData = blogValidation.updateValidation.parse(req.body);
-    const updatedBlog = await blogServices.updateBlogInToDB(
-        id,
-        userId,
-        validatedData,
-    );
+    const updatedBlog = await blogServices.updateBlogInToDB(id, validatedData);
 
     sendResponse(res, {
         success: true,
@@ -40,9 +31,8 @@ const updateBlog: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const deleteBlog: RequestHandler = catchAsync(async (req, res) => {
-    const { userId } = req.user;
     const { id } = req.params;
-    await blogServices.deleteBlogFromDB(id, userId);
+    await blogServices.deleteBlogFromDB(id);
 
     sendResponse(res, {
         success: true,
@@ -61,10 +51,22 @@ const getAllBlogs: RequestHandler = catchAsync(async (req, res) => {
         data: blogs,
     });
 });
+const getBlogById: RequestHandler = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const blog = await blogServices.getBlogByIdFromDB(id);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: 'Blog retrived successfully',
+        data: blog,
+    });
+});
 
 export const blogControllers = {
     createBlog,
     updateBlog,
     deleteBlog,
     getAllBlogs,
+    getBlogById,
 };

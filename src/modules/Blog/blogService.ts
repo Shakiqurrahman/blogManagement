@@ -2,32 +2,18 @@ import httpStatus from 'http-status';
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
 import { blogSearchableFields } from './blogConstants';
-import { IAuthor, TBlog } from './blogInterface';
+import { TBlog } from './blogInterface';
 import { Blog } from './blogModel';
 
 const createBlogInToDB = async (payload: TBlog) => {
-    const newBlog = (await Blog.create(payload)).populate({
-        path: 'author',
-    });
+    const newBlog = await Blog.create(payload);
     return newBlog;
 };
 
-const updateBlogInToDB = async (
-    id: string,
-    userId: string,
-    payload: Partial<TBlog>,
-) => {
-    const blog = await Blog.findById(id).populate('author').lean();
+const updateBlogInToDB = async (id: string, payload: Partial<TBlog>) => {
+    const blog = await Blog.findById(id).lean();
     if (!blog) {
         throw new AppError(httpStatus.NOT_FOUND, 'Blog is not found');
-    }
-
-    // Check if the user is authorized
-    if ((blog.author as IAuthor)._id.toString() !== userId) {
-        throw new AppError(
-            httpStatus.UNAUTHORIZED,
-            'Unauthorized to update blog',
-        );
     }
 
     const updatedBlog = await Blog.findByIdAndUpdate(id, payload, {
@@ -37,26 +23,17 @@ const updateBlogInToDB = async (
     return updatedBlog;
 };
 
-const deleteBlogFromDB = async (id: string, userId: string) => {
-    const blog = await Blog.findById(id).populate('author').lean();
+const deleteBlogFromDB = async (id: string) => {
+    const blog = await Blog.findById(id).lean();
     if (!blog) {
         throw new AppError(httpStatus.NOT_FOUND, 'Blog is not found');
     }
-
-    // Check if the user is authorized
-    if ((blog.author as IAuthor)._id.toString() !== userId) {
-        throw new AppError(
-            httpStatus.UNAUTHORIZED,
-            'Unauthorized to delete blog',
-        );
-    }
-
     await Blog.findByIdAndDelete(id);
     return;
 };
 
 const getAllBlogsFromDB = async (query: Record<string, unknown>) => {
-    const blogsQuery = new QueryBuilder(Blog.find().populate('author'), query)
+    const blogsQuery = new QueryBuilder(Blog.find(), query)
         .search(blogSearchableFields)
         .filter()
         .sortBy();
@@ -65,9 +42,18 @@ const getAllBlogsFromDB = async (query: Record<string, unknown>) => {
     return result;
 };
 
+const getBlogByIdFromDB = async (id: string) => {
+    const blog = await Blog.findById(id).lean();
+    if (!blog) {
+        throw new AppError(httpStatus.NOT_FOUND, 'Blog is not found');
+    }
+    return blog;
+};
+
 export const blogServices = {
     createBlogInToDB,
     updateBlogInToDB,
     deleteBlogFromDB,
     getAllBlogsFromDB,
+    getBlogByIdFromDB,
 };
